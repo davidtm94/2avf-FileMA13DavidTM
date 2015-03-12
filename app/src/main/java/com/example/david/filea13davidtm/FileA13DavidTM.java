@@ -2,8 +2,12 @@ package com.example.david.filea13davidtm;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.CheckBoxPreference;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
@@ -49,6 +53,7 @@ public class FileA13DavidTM extends Activity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this,SettingsActivity.class));
             return true;
         }
 
@@ -58,14 +63,26 @@ public class FileA13DavidTM extends Activity {
     public void writeBoton(View v){
         CheckBox checkBoton=(CheckBox) findViewById(R.id.btnOverWrite);
         EditText ed=(EditText)findViewById(R.id.editText);
+        TextView tv=(TextView) findViewById(R.id.tvTexto);
         try {
             FileOutputStream fos;
             if(checkBoton.isChecked()) fos=openFileOutput("fileM.txt", Context.MODE_PRIVATE);
             else fos=openFileOutput("fileM.txt", Context.MODE_APPEND);
 
+
             BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(fos));
             bw.write(ed.getText().toString());
             bw.close();
+
+            SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(this);
+            if(sp.getBoolean("ruta_checkbox",false)){
+                //Amosar a ruta ao inicio do TextView
+                //Si o conten xa, non engadimos nada. En caso contrario engadimola
+                String ruta=getFileStreamPath("fileM.txt").getAbsolutePath();
+                if(!tv.getText().toString().startsWith(ruta)){
+                    tv.setText(ruta+" "+tv.getText());
+                }
+            }
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -87,7 +104,15 @@ public class FileA13DavidTM extends Activity {
                 texto2+=texto;
             br.close();
             tv.setText(texto2);
-
+            SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(this);
+            if(sp.getBoolean("ruta_checkbox",false)){
+                //Amosar a ruta ao inicio do TextView
+                //Si o conten xa, non engadimos nada. En caso contrario engadimola
+                String ruta=getFileStreamPath("fileM.txt").getAbsolutePath();
+                if(!tv.getText().toString().startsWith(ruta)){
+                    tv.setText(ruta+" "+tv.getText());
+                }
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
